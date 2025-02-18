@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Pinterest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-[#e9e9e9] min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full">
+      <div class="text-center mb-8">
+        <svg
+          class="text-[#e60023] w-8 h-8 mx-auto"
+          aria-label="Pinterest"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 0a12 12 0 0 0-4.37 23.17c-.07-.63-.13-1.6.03-2.3.14-.6.92-3.86.92-3.86s-.24-.47-.24-1.17c0-1.1.64-1.92 1.44-1.92.68 0 1 .5 1 1.12 0 .68-.43 1.7-.66 2.64-.19.8.4 1.45 1.18 1.45 1.42 0 2.5-1.5 2.5-3.67 0-1.92-1.38-3.26-3.34-3.26-2.28 0-3.62 1.71-3.62 3.47 0 .69.27 1.43.6 1.83.07.08.08.15.06.24l-.22.92c-.04.15-.13.18-.3.11-1.1-.52-1.78-2.16-1.78-3.47 0-2.53 1.84-4.85 5.3-4.85 2.77 0 4.93 1.98 4.93 4.62 0 2.76-1.74 4.98-4.16 4.98-.81 0-1.57-.42-1.84-.92l-.5 1.9c-.18.7-.67 1.57-.99 2.1A12 12 0 1 0 12 0z"
+            fill="currentColor"
+          />
+        </svg>
+        <h1 class="text-3xl font-bold mt-4">Welcome to Pinterest</h1>
+      </div>
+      <form
+        action="/login"
+        method="POST"
+        class="space-y-4"
+        onsubmit="return validateForm()"
+      >
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Email</label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            id="email"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#e60023] focus:border-transparent"
+          />
+          <div id="emailError" class="text-[#e60023] text-sm mt-1 hidden">
+            You missed a spot! Don't forget to add your email.
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700"
+            >Password</label
+          >
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            id="password"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#e60023] focus:border-transparent"
+          />
+          <div id="passwordError" class="text-[#e60023] text-sm mt-1 hidden">
+            You missed a spot! Don't forget to add your password.
+          </div>
+        </div>
+        <div class="text-sm text-right">
+          <a href="#" class="text-[#e60023] hover:underline"
+            >Forgot your password?</a
+          >
+        </div>
+        <button
+          type="submit"
+          class="w-full bg-[#e60023] text-white py-3 px-4 rounded-full font-semibold hover:bg-[#ad081b] transition-colors"
+        >
+          Log in
+        </button>
+        <div class="text-center text-sm text-gray-600">OR</div>
+        <button
+          type="button"
+          class="w-full bg-[#1877f2] text-white py-3 px-4 rounded-full font-semibold hover:bg-[#166fe5] transition-colors flex items-center justify-center gap-2"
+        >
+          <i class="fab fa-facebook-f"></i>
+          Continue with Facebook
+        </button>
+        <button
+          type="button"
+          class="w-full bg-white text-black border border-gray-300 py-3 px-4 rounded-full font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+        >
+          <i class="fab fa-google"></i>
+          Continue with Google
+        </button>
+        <div class="text-center text-sm">
+          <span class="text-gray-600">Not on Pinterest yet?</span>
+          <a href="/signup" class="text-[#e60023] hover:underline ml-1"
+            >Sign up</a
+          >
+        </div>
+      </form>
+    </div>
+
+    <script>
+      function validateForm() {
+        const email = document.getElementById("email");
+        const password = document.getElementById("password");
+        const emailError = document.getElementById("emailError");
+        const passwordError = document.getElementById("passwordError");
+        let isValid = true;
+        emailError.classList.add("hidden");
+        passwordError.classList.add("hidden");
+        if (!email.value.trim()) {
+          emailError.classList.remove("hidden");
+          isValid = false;
+        }
+        if (!password.value.trim()) {
+          passwordError.classList.remove("hidden");
+          isValid = false;
+        }
+
+        return isValid;
+      }
+    </script>
+  </body>
+</html>

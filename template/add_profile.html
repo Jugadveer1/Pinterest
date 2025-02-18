@@ -1,18 +1,265 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Add Profile</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pinterest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="landing.css" />
+    <style>
+      .tooltip {
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #000;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 24px;
+        font-size: 14px;
+        white-space: nowrap;
+        margin-left: 12px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      .nav-button:hover .tooltip {
+        opacity: 1;
+      }
+      .search-container {
+        width: calc(100vw - 96px);
+        padding: 0 16px;
+      }
+      .search-input {
+        width: 100%;
+        padding: 12px 48px;
+        background-color: #e9e9e9;
+        border-radius: 9999px;
+        font-size: 16px;
+        transition: all 0.2s;
+      }
+      .search-input:focus {
+        background-color: white;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(230, 0, 35, 0.1);
+      }
+      .search-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #767676;
+        font-size: 16px;
+      }
+    </style>
   </head>
-  <body>
-    <h3>Profile form</h3>
-    <form action="/add" method="POST">
-      <label>First Name</label>
-      <input type="text" name="first_name" placeholder="first name..." />
-      <label>Last Name</label>
-      <input type="text" name="last_name" placeholder="last name..." />
-      <label>Age</label>
-      <input type="number" name="age" placeholder="age.." />
-      <button type="submit">Add</button>
-    </form>
+  <body class="bg-white">
+    <div id="app">
+      <div
+        class="fixed h-screen w-16 bg-white z-50 flex flex-col items-center py-4 shadow-sm"
+      >
+        <svg
+          class="text-[#e60023] w-6 h-6 mb-8"
+          aria-label="Pinterest"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 0a12 12 0 0 0-4.37 23.17c-.07-.63-.13-1.6.03-2.3.14-.6.92-3.86.92-3.86s-.24-.47-.24-1.17c0-1.1.64-1.92 1.44-1.92.68 0 1 .5 1 1.12 0 .68-.43 1.7-.66 2.64-.19.8.4 1.45 1.18 1.45 1.42 0 2.5-1.5 2.5-3.67 0-1.92-1.38-3.26-3.34-3.26-2.28 0-3.62 1.71-3.62 3.47 0 .69.27 1.43.6 1.83.07.08.08.15.06.24l-.22.92c-.04.15-.13.18-.3.11-1.1-.52-1.78-2.16-1.78-3.47 0-2.53 1.84-4.85 5.3-4.85 2.77 0 4.93 1.98 4.93 4.62 0 2.76-1.74 4.98-4.16 4.98-.81 0-1.57-.42-1.84-.92l-.5 1.9c-.18.7-.67 1.57-.99 2.1A12 12 0 1 0 12 0z"
+            fill="currentColor"
+          />
+        </svg>
+
+        <button
+          @click="currentPage = 'home'"
+          class="nav-button p-2 rounded-full mb-4 relative"
+        >
+          <i
+            class="fas fa-house text-xl"
+            :class="{'text-black': currentPage === 'home', 'text-gray-500': currentPage !== 'home'}"
+          ></i>
+          <span class="tooltip">Home</span>
+        </button>
+        <button
+          @click="currentPage = 'explore'"
+          class="nav-button p-2 rounded-full mb-4 relative"
+        >
+          <i
+            class="fas fa-search text-xl"
+            :class="{'text-black': currentPage === 'explore', 'text-gray-500': currentPage !== 'explore'}"
+          ></i>
+          <span class="tooltip">Search</span>
+        </button>
+        <button
+          @click="currentPage = 'create'"
+          class="nav-button p-2 rounded-full mb-4 relative"
+        >
+          <i
+            class="fas fa-plus text-xl"
+            :class="{'text-black': currentPage === 'create', 'text-gray-500': currentPage !== 'create'}"
+          ></i>
+          <span class="tooltip">Create</span>
+        </button>
+
+        <div class="mt-auto flex flex-col gap-4">
+          <button
+            class="nav-button p-2 rounded-full relative"
+            @click="toggleNotifications"
+          >
+            <i
+              class="fas fa-bell text-xl text-gray-500 hover:text-gray-700"
+            ></i>
+            <span class="tooltip">Notifications</span>
+          </button>
+          <button
+            class="nav-button p-2 rounded-full relative"
+            @click="toggleMessages"
+          >
+            <i
+              class="fas fa-comment-dots text-xl text-gray-500 hover:text-gray-700"
+            ></i>
+            <span class="tooltip">Messages</span>
+          </button>
+          <a href="/profile" class="nav-button p-2 rounded-full relative">
+            <i
+              class="fas fa-user text-xl text-gray-500 hover:text-gray-700"
+            ></i>
+            <span class="tooltip">Profile</span>
+          </a>
+          <button class="nav-button p-2 rounded-full relative">
+            <i
+              class="fas fa-ellipsis-h text-xl text-gray-500 hover:text-gray-700"
+            ></i>
+            <span class="tooltip">Settings</span>
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="fixed top-0 left-16 right-0 bg-white z-40 px-4 py-4 shadow-sm"
+      >
+        <div class="w-full flex items-center justify-between">
+          <div class="relative flex-1">
+            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            <input
+              type="text"
+              placeholder="Search"
+              class="w-full pl-10 pr-4 py-2 bg-[#e9e9e9] rounded-full focus:outline-none focus:ring-2 focus:ring-[#e60023] focus:bg-white"
+            />
+          </div>
+          <div class="flex items-center gap-4 ml-4">
+            <button class="p-2 rounded-full hover:bg-gray-100">
+              <i class="fas fa-user-circle text-2xl text-gray-700"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <main class="ml-16 pt-20">
+        <div class="masonry-grid mt-6" v-cloak>
+          <div v-for="(photo, index) in photos" :key="photo.id" class="pin">
+            <div class="pin-wrapper">
+              <img :src="photo.urls.regular" :alt="photo.alt_description" />
+              <div class="pin-overlay">
+                <div class="flex justify-end">
+                  <button class="save-button" @click="savePin(photo)">
+                    Save
+                  </button>
+                </div>
+                <div class="action-buttons mt-auto">
+                  <button class="action-button" @click="showOptions(photo)">
+                    <i class="fas fa-ellipsis-h text-gray-700"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2">
+              <h3 class="font-semibold text-sm">{{ photo.user.name }}</h3>
+              <p class="text-sm text-gray-500">
+                {{ photo.description || 'No description' }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div ref="loadingTrigger" class="h-10"></div>
+      </main>
+    </div>
+
+    <script>
+      const { createApp } = Vue;
+
+      createApp({
+        data() {
+          return {
+            photos: [],
+            currentPage: "home",
+            page: 1,
+            loading: false,
+            observer: null,
+            userEmail: "user@example.com",
+            username: "username",
+          };
+        },
+        mounted() {
+          this.loadPhotos();
+
+          this.observer = new IntersectionObserver(this.handleIntersect, {
+            root: null,
+            rootMargin: "100px",
+            threshold: 0.1,
+          });
+
+          this.observer.observe(this.$refs.loadingTrigger);
+        },
+        methods: {
+          async loadPhotos() {
+            if (this.loading) return;
+
+            this.loading = true;
+            try {
+              const response = await fetch(
+                `https://api.unsplash.com/photos?page=${this.page}&per_page=30`,
+                {
+                  headers: {
+                    Authorization:
+                      "Client-ID bOtxmRHM6fbo_p0UDpB1Ltu3P3a9pbPvwGIEvoaWw7M",
+                  },
+                }
+              );
+              const newPhotos = await response.json();
+              this.photos = [...this.photos, ...newPhotos];
+              this.page++;
+            } catch (error) {
+              console.error("Error loading photos:", error);
+            } finally {
+              this.loading = false;
+            }
+          },
+          handleIntersect(entries) {
+            if (entries[0].isIntersecting) {
+              this.loadPhotos();
+            }
+          },
+          toggleNotifications() {
+            // Handle notifications
+          },
+          toggleMessages() {
+            // Handle messages
+          },
+          showOptions(photo) {
+            // Handle options
+          },
+          savePin(photo) {
+            // Handle save
+          },
+          shareProfile(photo) {
+            // Handle share
+          },
+        },
+      }).mount("#app");
+    </script>
   </body>
 </html>
