@@ -1,67 +1,67 @@
-from flask import Flask, request, redirect
-from flask.templating import render_template
+from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import timedelta
 
-app = Flask(__name__)
-app.debug = True
-
-# adding configuration for using a sqlite database
+app = Flask(__name__, template_folder='templates')  
+app.config['SECRET_KEY'] = 'your-secret-key-here'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-
-# Creating an SQLAlchemy instance
+app.permanent_session_lifetime= timedelta(days=7)
 db = SQLAlchemy(app)
-def create_app():
-    #this is our flask app
-    flask_app = Flask(__name__)
-    flask_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
-    db.init_app(flask_app)
-    Migrate(flask_app, db)
 
-    
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120), unique=True, nullable=False) 
+    password = db.Column(db.String(200), nullable=False)
 
+with app.app_context():
+    db.create_all()
 
-    return flask_app
-
-# function to render index page
 @app.route('/')
 def index():
-    profiles = profile.query.all()
-    return render_template('index.html', profiles=profiles)
+    if 'user_id' in session:
+        return render_template('dashboard.html')
+    return render_template('index.html')
 
-@app.route('/add_data')
-def add_data():
-    return render_template('add_profile.html')
-
-# function to add profiles
-@app.route('/add', methods=["POST"])
-def profile():
-    # In this function we will input data from the 
-    # form page and store it in our database. Remember 
-    # that inside the get the name should exactly be the same 
-    # as that in the html input fields
-    first_name = request.form.get("first_name")
-    last_name = request.form.get("last_name")
-    age = request.form.get("age")
-
-    # create an object of the Profile class of models and 
-    # store data as a row in our datatable
-    if first_name != '' and last_name != '' and age is not None:
-        p = profile(first_name=first_name, last_name=last_name, age=age)
-        db.session.add(p)
-        db.session.commit()
-        return redirect('/')
-    else:
-        return redirect('/')
-
-@app.route('/delete/<int:id>')
-def erase(id):
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')  
+        password = request.form.get('password')
+        
+        user = User.query.filter_by(username=username).first()  
+        
+        if user and check_password_hash(user.password, password):
+            session['user_id'] = user.id
+            return redirect(url_for('index'))
+        
+        return redirect(url_for('login'))
     
-    # deletes the data on the basis of unique id and 
-    # directs to home page
-    data = profile.query.get(id)
-    db.session.delete(data)
-    db.session.commit()
-    return redirect('/')
+    return render_template('login.html')
 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form.get('username')  
+        password = request.form.get('password')
+        
+        if User.query.filter_by(username=username).first():  
+            return redirect(url_for('signup'))
+            
+        hashed_password = generate_password_hash(password)
+        new_user = User(username=username, password=hashed_password) 
+        
+        db.session.add(new_user)
+        db.session.commit()
+        
+        return redirect(url_for('signup'))
+        
+    return render_template('register.html')
 
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    return redirect(url_for('index'))
+
+if __name__ == '__main__':
+    app.run(debug=True)
